@@ -1,24 +1,37 @@
 import { Injectable } from '@angular/core';
-import { Auth, getAuth } from 'firebase/auth';
+import { Analytics, getAnalytics } from 'firebase/analytics';
+import { Auth, browserLocalPersistence, getAuth, setPersistence } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
+import { getMessaging, Messaging } from 'firebase/messaging';
+import { FirebasePerformance, getPerformance } from 'firebase/performance';
 import { FirebaseStorage, getStorage } from 'firebase/storage';
 import { environment } from '../../environments/environment';
-import { initializeApp } from 'firebase/app';
-import { getMessaging, Messaging } from "firebase/messaging";
-import { Analytics, getAnalytics } from "firebase/analytics";
-import { FirebasePerformance, getPerformance } from "firebase/performance"; 
+import { FirebaseApp, initializeApp } from 'firebase/app';
 
-const app = initializeApp(environment.firebaseConfig);
 
-@Injectable({  providedIn: 'root'})
-
-export class Instancias {
+@Injectable({
+  providedIn: 'root'
+})
+export class InstanciaFirebase {
+  private app: FirebaseApp;
   
-  public auth: Auth = getAuth(app);
-  public firestore: Firestore = getFirestore(app);
-  public storage: FirebaseStorage = getStorage(app);
-  public messaging: Messaging = getMessaging(app);
-  public analytics: Analytics = getAnalytics(app);
-  public performance: FirebasePerformance = getPerformance(app);
+  public auth: Auth;
+  public firestore: Firestore;
+  public storage: FirebaseStorage;
+  public messaging: Messaging;
+  public analytics: Analytics;
+  public performance: FirebasePerformance;
 
+  constructor() {
+    this.app = initializeApp(environment.firebaseConfig);
+
+    this.auth = getAuth(this.app);
+    this.firestore = getFirestore(this.app);
+    this.storage = getStorage(this.app);
+    this.messaging = getMessaging(this.app); 
+    this.analytics = getAnalytics(this.app);
+    this.performance = getPerformance(this.app);
+
+    setPersistence(this.auth, browserLocalPersistence).then(() => {}).catch((error) => {});
+  }
 }
