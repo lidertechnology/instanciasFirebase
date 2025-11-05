@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Analytics, getAnalytics } from 'firebase/analytics';
 import { Auth, browserLocalPersistence, getAuth, setPersistence } from 'firebase/auth';
-import { Firestore, getFirestore } from 'firebase/firestore';
+import { Firestore, getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getMessaging, Messaging } from 'firebase/messaging';
 import { FirebasePerformance, getPerformance } from 'firebase/performance';
 import { FirebaseStorage, getStorage } from 'firebase/storage';
@@ -22,16 +22,17 @@ export class InstanciaFirebase {
   public analytics: Analytics;
   public performance: FirebasePerformance;
 
-  constructor() {
-    this.app = initializeApp(environment.firebaseConfig);
-
-    this.auth = getAuth(this.app);
-    this.firestore = getFirestore(this.app);
-    this.storage = getStorage(this.app);
-    this.messaging = getMessaging(this.app); 
-    this.analytics = getAnalytics(this.app);
-    this.performance = getPerformance(this.app);
-
-    setPersistence(this.auth, browserLocalPersistence).then(() => {}).catch((error) => {});
-  }
+  
+    constructor() {
+      this.app = initializeApp(environment.firebaseConfig);
+  
+      this.auth = getAuth(this.app);
+      this.firestore = initializeFirestore(this.app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+      this.storage = getStorage(this.app);
+      this.messaging = getMessaging(this.app); 
+      this.analytics = getAnalytics(this.app);
+      this.performance = getPerformance(this.app);
+  
+      setPersistence(this.auth, browserLocalPersistence).then(() => {}).catch(() => {});
+    }
 }
